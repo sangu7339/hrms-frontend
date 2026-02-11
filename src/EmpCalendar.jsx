@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./EmployeeHolidayCalendar.css";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function EmployeeHolidayCalendar() {
   const [holidays, setHolidays] = useState([]);
@@ -20,8 +19,8 @@ export default function EmployeeHolidayCalendar() {
     setError("");
     try {
 const [holidayRes, typeRes] = await Promise.all([
-  axios.get(`${API_BASE_URL}/hr/holiday`, { withCredentials: true }),
-  axios.get(`${API_BASE_URL}/hr/holidaymaster`, { withCredentials: true })
+  axios.get(`/api/hr/holiday`, { withCredentials: true }),
+  axios.get(`/api/hr/holidaymaster`, { withCredentials: true })
 ]);
 
       setHolidays(holidayRes.data || []);

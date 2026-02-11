@@ -2,7 +2,6 @@
 // import axios from "axios";
 // import { Search, Download, Calendar, User, DollarSign, RefreshCw, Filter, X, Edit, Save, Trash2, Eye } from "lucide-react";
 // import "./HrSalaryManagement.css"; // Import the CSS file
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // export default function HrSalaryManagement() {
 //   const [form, setForm] = useState({
@@ -98,7 +97,7 @@
 //     setLoading(true);
 //     try {
 //       await axios.post(
-//         `${API_BASE_URL}//salary/hr/month/all`,
+//         `/api//salary/hr/month/all`,
 //         {
 //           totalDay: Number(form.totalDay),
 //           month: Number(form.month),
@@ -135,7 +134,7 @@
 //       });
       
 //       const res = await axios.get(
-//         `${API_BASE_URL}/salary/hr/month?${params.toString()}`,
+//         `/api/salary/hr/month?${params.toString()}`,
 //         { withCredentials: true }
 //       );
 //       setResult(res.data || []);
@@ -169,7 +168,7 @@
 //     if (!editForm.totalDay) return alert("Total days is required");
 //     try {
 //       await axios.put(
-//         `${API_BASE_URL}/salary/edit/${editForm.salaryId}`,
+//         `/api/salary/edit/${editForm.salaryId}`,
 //         {
 //           userId: Number(editForm.userId),
 //           month: Number(editForm.month),
@@ -209,7 +208,7 @@
 //     setSearchLoading(true);
 //     try {
 //       const res = await axios.get(
-//         `${API_BASE_URL}/salary/hr/month?month=${form.month}&year=${form.year}`,
+//         `/api/salary/hr/month?month=${form.month}&year=${form.year}`,
 //         { withCredentials: true }
 //       );
 //       setResult(res.data || []);
@@ -847,7 +846,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Download, Calendar, User, DollarSign, RefreshCw, Filter, X, Edit, Save, Trash2, Eye } from "lucide-react";
 import "./HrSalaryManagement.css"; // Import the CSS file
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export default function HrSalaryManagement() {
   const [form, setForm] = useState({
     totalDay: "",
@@ -942,7 +940,7 @@ export default function HrSalaryManagement() {
     setLoading(true);
     try {
       await axios.post(
-        `${API_BASE_URL}/salary/hr/month/all`,
+        `/api/salary/hr/month/all`,
         {
           totalDay: Number(form.totalDay),
           month: Number(form.month),
@@ -979,7 +977,7 @@ export default function HrSalaryManagement() {
       });
       
       const res = await axios.get(
-        `${API_BASE_URL}/salary/hr/month?${params.toString()}`,
+        `/api/salary/hr/month?${params.toString()}`,
         { withCredentials: true }
       );
       setResult(res.data || []);
@@ -1013,7 +1011,7 @@ export default function HrSalaryManagement() {
     if (!editForm.totalDay) return alert("Total days is required");
     try {
       await axios.put(
-        `${API_BASE_URL}/salary/edit/${editForm.salaryId}`,
+        `/api/salary/edit/${editForm.salaryId}`,
         {
           userId: Number(editForm.userId),
           month: Number(editForm.month),
@@ -1053,7 +1051,7 @@ export default function HrSalaryManagement() {
     setSearchLoading(true);
     try {
       const res = await axios.get(
-        `${API_BASE_URL}/salary/hr/month?month=${form.month}&year=${form.year}`,
+        `/api/salary/hr/month?month=${form.month}&year=${form.year}`,
         { withCredentials: true }
       );
       setResult(res.data || []);

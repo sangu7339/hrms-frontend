@@ -1,4 +1,4 @@
-
+import api from "./api";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./HrCalculateSalary.css";
@@ -15,7 +15,6 @@ export default function SalaryConfiguration() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [configExists, setConfigExists] = useState(false);
- const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // Load existing configuration on component mount
   useEffect(() => {
     fetchSalaryConfig();
@@ -27,7 +26,7 @@ export default function SalaryConfiguration() {
       console.log("Fetching salary configuration...");
 
    const response = await axios.get(
-  `${API_BASE_URL}/salary/calculator/get`,
+  `/api/salary/calculator/get`,
   {
     withCredentials: true,
     headers: { 'Content-Type': 'application/json' }
@@ -209,7 +208,7 @@ console.log("API Response:", response.data);
         // UPDATE existing configuration (can edit anytime)
         console.log("Updating config with ID:", form.id);
       const response = await axios.put(
-  `${API_BASE_URL}/salary/update/${form.id}`,
+  `/api/salary/update/${form.id}`,
   payload,
   {
     withCredentials: true,
@@ -233,7 +232,7 @@ console.log("API Response:", response.data);
         
         try {
           const response = await axios.post(
-  `${API_BASE_URL}/salary/calculator`,
+  `/api/salary/calculator`,
   payload,
   {
     withCredentials: true,
@@ -312,7 +311,7 @@ console.log("Create response:", response.data);
   const testApiDirectly = async () => {
     try {
       console.log("Testing API directly...");
-      const response = await fetch("http://localhost:8080/salary/calculator/get", {
+      const response = await fetch("/api/salary/calculator/get", {
         credentials: 'include'
       });
       console.log("Direct fetch status:", response.status);

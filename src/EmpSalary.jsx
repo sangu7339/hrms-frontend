@@ -4,7 +4,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import companyLogo from "./assets/download.png";
 import { FiDownload, FiCalendar, FiFileText, FiDollarSign } from "react-icons/fi";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const EmpSalary = () => {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [message, setMessage] = useState("");
@@ -58,7 +57,7 @@ const EmpSalary = () => {
       const [year, month] = selectedMonth.split("-");
 
       const res = await axios.get(
-        `${API_BASE_URL}/salary/emp/payslip?month=${month}&year=${year}`,
+        `/api/salary/emp/payslip?month=${month}&year=${year}`,
         { withCredentials: true }
       );
 

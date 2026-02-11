@@ -1,3 +1,4 @@
+import api from "./api";
 import React, { Component } from "react";
 import { Navigate } from "react-router-dom";
 import { 
@@ -13,7 +14,6 @@ import ReportingManager from "./ReportingManager";
 import EmpLeaveManagement from "./EmpLeaveManagement";
 
 import "./EmpDashboard.css";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default class EmpDashboard extends Component {
   state = {
@@ -38,7 +38,7 @@ export default class EmpDashboard extends Component {
 
   fetchLeaveBalance = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/leave-status/my-balance`, {
+      const response = await fetch(`/api/leave-status/my-balance`, {
         credentials: "include"
       });
       if (response.ok) {
@@ -65,7 +65,7 @@ export default class EmpDashboard extends Component {
   };
 
   logout = () => {
-    fetch("http://localhost:8080/logout", {
+    fetch("/logout", {
       method: "POST",
       credentials: "include",
     }).then(() => this.setState({ logout: true }));
@@ -92,7 +92,7 @@ export default class EmpDashboard extends Component {
       return;
     }
 
-    fetch("http://localhost:8080/password", {
+    fetch("/password", {
       method: "PUT",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

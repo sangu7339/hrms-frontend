@@ -1,8 +1,7 @@
-
+import api from "./api";
 import React, { Component } from 'react';
 import axios from 'axios';
 import './EmpLeaveManagement.css';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default class EmpLeaveManagement extends Component {
   state = {
@@ -44,7 +43,7 @@ export default class EmpLeaveManagement extends Component {
 
   loadLeaveTypes = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/leave-master/all');
+      const res = await axios.get('/leave-master/all');
       this.setState({
         leaveTypes: res.data.filter(l => l.leaveName !== 'LOP')
       });
@@ -55,7 +54,7 @@ export default class EmpLeaveManagement extends Component {
 
   loadMyLeaves = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/leave-record/myLeaves');
+      const res = await axios.get('/leave-record/myLeaves');
       this.setState({ myLeaves: res.data });
     } catch (error) {
       console.error('Error loading my leaves:', error);
@@ -64,7 +63,7 @@ export default class EmpLeaveManagement extends Component {
 
   loadTeamLeaves = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/leave-record/teamLeaves');
+      const res = await axios.get('/leave-record/teamLeaves');
       this.setState({ teamLeaves: res.data });
     } catch (error) {
       console.error('Error loading team leaves:', error);
@@ -191,7 +190,7 @@ export default class EmpLeaveManagement extends Component {
 
       console.log('Sending leave application:', requestData);
 
-      await axios.post(`${API_BASE_URL}/leave-record/applyLeave`, requestData);
+      await axios.post(`/api/leave-record/applyLeave`, requestData);
 
       this.showMessage('success', 'Leave application submitted successfully!');
       
@@ -227,7 +226,7 @@ export default class EmpLeaveManagement extends Component {
 
     try {
       await axios.put(
-        `${API_BASE_URL}/leave-record/approve/${recId}`,
+        `/api/leave-record/approve/${recId}`,
         {}
       );
       
@@ -256,7 +255,7 @@ export default class EmpLeaveManagement extends Component {
 
     try {
       await axios.put(
-        `${API_BASE_URL}/leave-record/reject/${selectedLeave.recId}`,
+        `/api/leave-record/reject/${selectedLeave.recId}`,
         { reasonForReject: rejectReason.trim() }
       );
       

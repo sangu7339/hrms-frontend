@@ -1,3 +1,4 @@
+import api from "./api";
 import React, { Component } from 'react';
 import { Navigate } from 'react-router-dom';
 import Header from './components/Header';
@@ -41,7 +42,7 @@ export default class ForgotPassword extends Component {
     // ✅ Block submit if Employee ID invalid
     if (this.state.usernameError) return;
 
-    fetch('http://localhost:8080/forget-password', {
+    fetch('/forget-password', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./HrEmployeeManagement.css";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function HrEmployeeManagement() {
   const loggedInUserId = sessionStorage.getItem("userId");
   const [loading, setLoading] = useState(false);
@@ -77,15 +76,15 @@ function HrEmployeeManagement() {
 
   // Fetch initial data
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/departments`, { withCredentials: true })
+    axios.get(`/api/departments`, { withCredentials: true })
       .then((res) => setDepartments(res.data))
       .catch((err) => console.error("Department API error", err));
 
-    axios.get(`${API_BASE_URL}/api/designations`, { withCredentials: true })
+    axios.get(`/api/designations`, { withCredentials: true })
       .then((res) => setDesignations(res.data))
       .catch((err) => console.error("Designation API error", err));
 
-    axios.get(`${API_BASE_URL}/salary/calculator/get`, { withCredentials: true })
+    axios.get(`/api/salary/calculator/get`, { withCredentials: true })
       .then((res) => {
         const validItem = Array.isArray(res.data)
           ? res.data.find(item => item.basicPercentage > 0)
@@ -219,7 +218,7 @@ function HrEmployeeManagement() {
     try {
       setSearchLoading(true);
       setShowSearchResults(true);
-      const res = await axios.get(`${API_BASE_URL}/dept/hr/emp/search?value=${searchValue}`, { withCredentials: true });
+      const res = await axios.get(`/api/dept/hr/emp/search?value=${searchValue}`, { withCredentials: true });
       const results = Array.isArray(res.data) ? res.data : res.data ? [res.data] : [];
       setSearchResults(results);
       if (results.length === 0) {
@@ -292,7 +291,7 @@ function HrEmployeeManagement() {
 
     if (fetchedUserId) {
       try {
-        const res = await axios.get(`${API_BASE_URL}/hr/search-doc/${fetchedUserId}`, { withCredentials: true });
+        const res = await axios.get(`/api/hr/search-doc/${fetchedUserId}`, { withCredentials: true });
         setExistingDocuments(res.data);
       } catch (err) {
         console.error("Documents fetch error", err);
@@ -330,7 +329,7 @@ function HrEmployeeManagement() {
 
       if (existingDoc && existingDoc.docId) {
         await axios.put(
-          `${API_BASE_URL}/api/v1/users/${userId}/documents/${existingDoc.docId}/replace`,
+          `/api/v1/users/${userId}/documents/${existingDoc.docId}/replace`,
           formData,
           { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -341,14 +340,14 @@ function HrEmployeeManagement() {
         uploadFormData.append("documentType", docConfig.apiKey);
         uploadFormData.append("userId", userId);
         await axios.post(
-          `${API_BASE_URL}/dept/hr/employee/document/upload`,
+          `/api/dept/hr/employee/document/upload`,
           uploadFormData,
           { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
         );
         setMessage(`✅ ${docConfig.displayName} uploaded`);
       }
 
-      const docsRes = await axios.get(`${API_BASE_URL}/hr/search-doc/${userId}`, { withCredentials: true });
+      const docsRes = await axios.get(`/api/hr/search-doc/${userId}`, { withCredentials: true });
       setExistingDocuments(docsRes.data);
     } catch (error) {
       setMessage(`❌ Failed to upload ${docConfig.displayName}`);
@@ -406,7 +405,7 @@ function HrEmployeeManagement() {
           formData.append(docKey, uploadedFiles[docKey]);
         }
 
-        await axios.post(`${API_BASE_URL}/dept/hr/onboarding`, formData, {
+        await axios.post(`/api/dept/hr/onboarding`, formData, {
           withCredentials: true,
           headers: { 'Content-Type': 'multipart/form-data' }
         });
@@ -436,7 +435,7 @@ function HrEmployeeManagement() {
           empMgrDto: { mgrId: form.empMgrDto.mgrId ? Number(form.empMgrDto.mgrId) : null },
         };
 
-        await axios.put(`${API_BASE_URL}/dept/hr/employee/edit?userId=${userId}`, payload, {
+        await axios.put(`/api/dept/hr/employee/edit?userId=${userId}`, payload, {
           withCredentials: true,
           headers: { 'Content-Type': 'application/json' }
         });
@@ -474,7 +473,7 @@ function HrEmployeeManagement() {
     if (!managerSearchValue.trim()) return;
     try {
       setManagerSearchLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/dept/hr/emp/search?value=${managerSearchValue}`, { withCredentials: true });
+      const res = await axios.get(`/api/dept/hr/emp/search?value=${managerSearchValue}`, { withCredentials: true });
       const results = Array.isArray(res.data) ? res.data : res.data ? [res.data] : [];
       setManagerSearchResults(results);
       setShowManagerSearch(true);

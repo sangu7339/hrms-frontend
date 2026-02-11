@@ -1,7 +1,6 @@
 
 import React, { Component } from "react";
 import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Axios configuration
 
 axios.defaults.withCredentials = true;
@@ -35,7 +34,7 @@ export default class EmpProfile extends Component {
 
   fetchProfile = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/emp/profile`);
+      const res = await axios.get(`/api/emp/profile`);
       this.setState({
         data: res.data,
         loading: false,
@@ -60,7 +59,7 @@ export default class EmpProfile extends Component {
     
     try {
       // Step 1: Get document list for the user
-      const docRes = await axios.get(`${API_BASE_URL}/hr/search-doc/${userId}`);
+      const docRes = await axios.get(`/api/hr/search-doc/${userId}`);
       console.log("Document list:", docRes.data);
       
       // Step 2: Find photograph document
@@ -71,7 +70,7 @@ export default class EmpProfile extends Component {
         
         // Step 3: Download the photograph
         const imageRes = await axios.get(
-          `${API_BASE_URL}/api/v1/users/${userId}/documents/${photographDoc.docId}/download`,
+          `/api/v1/users/${userId}/documents/${photographDoc.docId}/download`,
           { 
             responseType: 'blob',
             timeout: 10000 // 10 second timeout
@@ -128,7 +127,7 @@ export default class EmpProfile extends Component {
 
   handleSave = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/emp/profile`, this.state.formData);
+      await axios.put(`/api/emp/profile`, this.state.formData);
       this.setState({
         editing: false,
         data: this.state.formData,
@@ -160,7 +159,7 @@ export default class EmpProfile extends Component {
     formData.append("profileImage", file);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/emp/profile/image`, formData, {
+      const res = await axios.post(`/api/emp/profile/image`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       this.setState((prevState) => ({
@@ -179,7 +178,7 @@ export default class EmpProfile extends Component {
 
   exportToPDF = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/emp/profile/export/pdf`, {
+      const response = await axios.get(`/api/emp/profile/export/pdf`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

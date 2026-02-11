@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export default function EmpMgr() {
   const [username, setUsername] = useState('');
   const [employeeData, setEmployeeData] = useState(null);
@@ -20,7 +19,7 @@ export default function EmpMgr() {
 
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/hr/mgr/search-by-username?username=${username.toUpperCase()}`,
+        `/api/hr/mgr/search-by-username?username=${username.toUpperCase()}`,
         { withCredentials: true }
       );
       

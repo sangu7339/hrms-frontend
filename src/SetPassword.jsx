@@ -1,3 +1,4 @@
+import api from "./api";
 import React, { Component } from 'react';
 import { Navigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -33,7 +34,7 @@ export default class SetPassword extends Component {
       return;
     }
 
-    fetch('http://localhost:8080/set', {
+    fetch('/set', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./HolidayCalendar.css";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function HolidayCalendar() {
   const [types, setTypes] = useState([]);
@@ -30,19 +29,19 @@ export default function HolidayCalendar() {
     try {
       // Load holiday types
       const typeRes = await axios.get(
-        `${API_BASE_URL}/hr/holidaymaster`,
+        `/api/hr/holidaymaster`,
         { withCredentials: true }
       );
 
       // Load holiday locations
       const locRes = await axios.get(
-        `${API_BASE_URL}/hr/holidaylocation`,
+        `/api/hr/holidaylocation`,
         { withCredentials: true }
       );
 
       // Load holidays
       const holidayRes = await axios.get(
-        `${API_BASE_URL}/hr/holiday`,
+        `/api/hr/holiday`,
         { withCredentials: true }
       );
 
@@ -60,7 +59,7 @@ export default function HolidayCalendar() {
 
     try {
       const res = await axios.post(
-        `${API_BASE_URL}/hr/holidaymaster`,
+        `/api/hr/holidaymaster`,
         { holidayType: newType },
         { withCredentials: true }
       );
@@ -81,7 +80,7 @@ export default function HolidayCalendar() {
 
     try {
       const res = await axios.post(
-        `${API_BASE_URL}/hr/holidaylocation`,
+        `/api/hr/holidaylocation`,
         { locationName: newLocation },
         { withCredentials: true }
       );
@@ -112,7 +111,7 @@ export default function HolidayCalendar() {
       if (isEditing && editingId) {
         // Update existing holiday
         await axios.put(
-          `${API_BASE_URL}/hr/holiday/${editingId}`,
+          `/api/hr/holiday/${editingId}`,
           {
             holidayName: form.holidayName,
             holidayDate: form.holidayDate,
@@ -125,7 +124,7 @@ export default function HolidayCalendar() {
       } else {
         // Create new holiday
         await axios.post(
-          `${API_BASE_URL}/hr/holiday`,
+          `/api/hr/holiday`,
           {
             holidayName: form.holidayName,
             holidayDate: form.holidayDate,
@@ -188,7 +187,7 @@ export default function HolidayCalendar() {
       console.log("Deleting holiday with ID:", holidayId); // Debug log
       
       await axios.delete(
-        `${API_BASE_URL}/hr/holiday/${holidayId}`,
+        `/api/hr/holiday/${holidayId}`,
         { withCredentials: true }
       );
       alert("✅ Holiday Deleted");

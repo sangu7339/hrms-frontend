@@ -1,13 +1,12 @@
-
+//import api from "./api";
 import React, { Component } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import './Login.css';
 import Header from './components/Header';
 import loginBg from './assets/login-bg.jpeg';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-console.log(API_BASE_URL); // should print http://localhost:8080
+//console.log("/api"); // should print http://localhost:8080
 
 
 
@@ -81,7 +80,7 @@ export default class Login extends Component {
       return;
     }
 
-  fetch(`${API_BASE_URL}/user/login`, {
+  fetch(`/api/user/login`, {
   method: 'POST',
   credentials: 'include',
   headers: { 'Content-Type': 'application/json' },

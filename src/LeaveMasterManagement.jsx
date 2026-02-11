@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export default function LeaveMasterManagement() {
   const [leaves, setLeaves] = useState([]);
   const [form, setForm] = useState({
@@ -10,7 +9,7 @@ export default function LeaveMasterManagement() {
   });
   const [editId, setEditId] = useState(null);
 
-  const BASE_URL = API_BASE_URL;
+  const BASE_URL = "/api";
 
   // 🔄 Fetch all leave types
   const fetchLeaves = async () => {

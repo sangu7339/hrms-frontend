@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
 import "./HrDashBoard.css";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 /* LOGO */
 import ventureBizLogo from "./assets/venturebiz_logo.png";
 
@@ -86,7 +85,7 @@ export default function HrDashBoard() {
     try {
       setLoading(true);
       await axios.put(
-        `${API_BASE_URL}/password`,
+        `/api/password`,
         { password: newPassword },
         { withCredentials: true }
       );
@@ -112,7 +111,7 @@ export default function HrDashBoard() {
       });
 
       const response = await axios.get(
-        `${API_BASE_URL}/hr/search?${params.toString()}`,
+        `/api/hr/search?${params.toString()}`,
         { withCredentials: true }
       );
       
@@ -136,7 +135,7 @@ export default function HrDashBoard() {
     try {
       setLoadingDocuments(true);
       const response = await axios.get(
-        `${API_BASE_URL}/hr/search-doc/${userId || 7}`,
+        `/api/hr/search-doc/${userId || 7}`,
         { withCredentials: true }
       );
       setDocuments(response.data);
@@ -159,7 +158,7 @@ export default function HrDashBoard() {
   const downloadDocument = async (docPath, documentName) => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/${docPath}`,
+        `/api/${docPath}`,
         {
           withCredentials: true,
           responseType: 'blob'

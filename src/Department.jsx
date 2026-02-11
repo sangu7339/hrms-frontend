@@ -7,7 +7,6 @@ export default function Department() {
      ====================== */
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [newDepartment, setNewDepartment] = useState("");
   const [newDesignation, setNewDesignation] = useState("");
@@ -26,7 +25,7 @@ export default function Department() {
   const fetchDepartments = async () => {
     try {
       const res = await axios.get(
-  `${API_BASE_URL}/api/departments`,
+  `/api/departments`,
   { withCredentials: true }
 );
       setDepartments(res.data);
@@ -42,7 +41,7 @@ export default function Department() {
   const fetchDesignations = async () => {
     try {
       const res = await axios.get(
-  `${API_BASE_URL}/api/designations`,
+  `/api/designations`,
   { withCredentials: true }
 );
       const cleaned = res.data.filter((d) => d.designationName !== null);
@@ -73,7 +72,7 @@ export default function Department() {
     try {
       setLoadingDept(true);
      await axios.post(
-  `${API_BASE_URL}/dept/hr/create`,
+  `/api/departments`,
   { departmentName: newDepartment },
   { withCredentials: true }
 );
@@ -99,7 +98,7 @@ export default function Department() {
     try {
       setLoadingDesg(true);
       await axios.post(
-  `${API_BASE_URL}/dept/hr/DesignationName`,
+  `/api/dept/hr/DesignationName`,
   { designationName: newDesignation },
   { withCredentials: true }
 );
@@ -124,7 +123,7 @@ export default function Department() {
 
     try {
      await axios.put(
-  `${API_BASE_URL}/api/departments/department-upate?departmentId=${id}`,
+  `/api/departments/department-upate?departmentId=${id}`,
   { departmentName: editDeptName },
   { withCredentials: true }
 );
@@ -148,7 +147,7 @@ export default function Department() {
 
     try {
 await axios.put(
-  `${API_BASE_URL}/api/designations/designation-update?designationId=${id}`,
+  `/api/designations/designation-update?designationId=${id}`,
   { designationName: editDesgName },
   { withCredentials: true }
 );
