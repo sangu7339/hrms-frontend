@@ -1,4 +1,4 @@
-
+import api from "./api";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./HolidayCalendar.css";
@@ -40,14 +40,16 @@ export default function HolidayCalendar() {
       );
 
       // Load holidays
-      const holidayRes = await axios.get(
-        `/api/hr/holiday`,
-        { withCredentials: true }
-      );
+      const holidayRes = await api.get("/hr/holiday");
 
       setTypes(typeRes.data || []);
       setLocations(locRes.data || []);
-      setHolidays(holidayRes.data || []);
+      if (Array.isArray(holidayRes.data)) {
+  setHolidays(holidayRes.data);
+} else {
+  console.error("Invalid holiday response:", holidayRes.data);
+  setHolidays([]);
+}
     } catch (err) {
       console.log("Data load error:", err);
     }

@@ -90,7 +90,10 @@ export default class Login extends Component {
         if (!res.ok) throw new Error('Invalid username or password');
         return res.json();
       })
-      .then(result => {
+      .then(async result => {
+        await fetch("/api/hr/holidaylocation", {
+    credentials: "include"
+  }).catch(() => {});
         const msg = result.message || '';
 
         if (msg.includes('status : 0')) {
