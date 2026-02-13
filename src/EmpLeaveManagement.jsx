@@ -1,6 +1,6 @@
+
 import api from "./api";
 import React, { Component } from 'react';
-import axios from 'axios';
 import './EmpLeaveManagement.css';
 
 export default class EmpLeaveManagement extends Component {
@@ -40,21 +40,24 @@ export default class EmpLeaveManagement extends Component {
       this.setState({ loading: false });
     }
   };
+ loadLeaveTypes = async () => {
+  try {
+    const res = await api.get('/leave-master/all');
+    console.log("Leave Types Response:", res.data);
 
-  loadLeaveTypes = async () => {
-    try {
-      const res = await axios.get('/leave-master/all');
-      this.setState({
-        leaveTypes: res.data.filter(l => l.leaveName !== 'LOP')
-      });
-    } catch (error) {
-      console.error('Error loading leave types:', error);
-    }
-  };
+    const data = Array.isArray(res.data) ? res.data : [];
 
+    this.setState({
+      leaveTypes: data.filter(l => l.leaveName !== 'LOP')
+    });
+
+  } catch (error) {
+    console.error('Error loading leave types:', error);
+  }
+};
   loadMyLeaves = async () => {
     try {
-      const res = await axios.get('/leave-record/myLeaves');
+      const res = await api.get('/leave-record/myLeaves');
       this.setState({ myLeaves: res.data });
     } catch (error) {
       console.error('Error loading my leaves:', error);
@@ -63,7 +66,7 @@ export default class EmpLeaveManagement extends Component {
 
   loadTeamLeaves = async () => {
     try {
-      const res = await axios.get('/leave-record/teamLeaves');
+      const res = await api.get('/leave-record/myLeaves');
       this.setState({ teamLeaves: res.data });
     } catch (error) {
       console.error('Error loading team leaves:', error);
@@ -190,7 +193,7 @@ export default class EmpLeaveManagement extends Component {
 
       console.log('Sending leave application:', requestData);
 
-      await axios.post(`/api/leave-record/applyLeave`, requestData);
+      await api.post('/leave-record/applyLeave', requestData);
 
       this.showMessage('success', 'Leave application submitted successfully!');
       
@@ -225,10 +228,7 @@ export default class EmpLeaveManagement extends Component {
     }
 
     try {
-      await axios.put(
-        `/api/leave-record/approve/${recId}`,
-        {}
-      );
+      await api.put(`/leave-record/approve/${recId}`);
       
       this.showMessage('success', 'Leave approved successfully!');
       await this.loadTeamLeaves();
@@ -254,10 +254,9 @@ export default class EmpLeaveManagement extends Component {
     }
 
     try {
-      await axios.put(
-        `/api/leave-record/reject/${selectedLeave.recId}`,
-        { reasonForReject: rejectReason.trim() }
-      );
+      await api.put(`/leave-record/reject/${selectedLeave.recId}`, {
+  reason: rejectReason.trim()
+});
       
       this.showMessage('success', 'Leave rejected successfully!');
       this.setState({

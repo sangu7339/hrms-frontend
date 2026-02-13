@@ -15,24 +15,42 @@ export default function EmployeeHolidayCalendar() {
   }, []);
 
   const loadData = async () => {
-    setLoading(true);
-    setError("");
-    try {
-const [holidayRes, typeRes] = await Promise.all([
-  axios.get(`/api/hr/holiday`, { withCredentials: true }),
-  axios.get(`/api/hr/holidaymaster`, { withCredentials: true })
-]);
+  setLoading(true);
+  setError("");
 
-      setHolidays(holidayRes.data || []);
-      setTypes(typeRes.data || []);
-      
-    } catch (err) {
-      console.error("Error loading data:", err);
-      setError("Failed to load holiday data. Please try again.");
-    } finally {
-      setLoading(false);
+  try {
+    const [holidayRes, typeRes] = await Promise.all([
+      axios.get(`/api/hr/holiday`, { withCredentials: true }),
+      axios.get(`/api/hr/holidaymaster`, { withCredentials: true })
+    ]);
+
+    // ✅ SAFE ARRAY CHECK
+    const holidayData = Array.isArray(holidayRes.data)
+      ? holidayRes.data
+      : [];
+
+    const typeData = Array.isArray(typeRes.data)
+      ? typeRes.data
+      : [];
+
+    if (!Array.isArray(holidayRes.data)) {
+      console.error("Invalid holiday response:", holidayRes.data);
     }
-  };
+
+    if (!Array.isArray(typeRes.data)) {
+      console.error("Invalid holiday type response:", typeRes.data);
+    }
+
+    setHolidays(holidayData);
+    setTypes(typeData);
+
+  } catch (err) {
+    console.error("Error loading data:", err);
+    setError("Failed to load holiday data. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getTypeName = (id) => {
     if (!id && id !== 0) return "Not Selected";

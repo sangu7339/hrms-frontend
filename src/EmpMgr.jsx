@@ -19,7 +19,7 @@ export default function EmpMgr() {
 
     try {
       const response = await axios.get(
-        `/api/hr/mgr/search-by-username?username=${username.toUpperCase()}`,
+        `/api/hr/search?username=${username.toUpperCase()}`,
         { withCredentials: true }
       );
       
