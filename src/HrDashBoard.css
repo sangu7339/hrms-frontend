@@ -491,6 +491,25 @@ body {
   padding-top: 8px;
 }
 
+/* ===== ERROR STYLES ===== */
+.error-text {
+  color: #8B00FF;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-error-box {
+  background-color: #FFE6F0;
+  color: #8B00FF;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #8B00FF;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
 /* ===== BUTTONS ===== */
 .btn {
   padding: 12px 24px;

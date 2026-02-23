@@ -397,16 +397,14 @@ body {
   gap: 6px;
 }
 
-.form-group label::before {
-  content: '●';
-  color: var(--primary-color);
-  font-size: 8px;
-}
 
-.form-help {
-  font-size: 13px;
-  color: var(--gray-600);
-  margin-top: -4px;
+.label-error {
+  color: #e53935;
+  font-weight: 600;
+}
+/* STAR COLOR */
+.required {
+  color: #e53935;
 }
 
 .leave-form input,
@@ -963,5 +961,101 @@ textarea:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+/* Error styles */
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+  border-color: var(--danger) !important;
+  background-color: rgba(220, 53, 69, 0.02);
+}
+
+.error-message {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-icon {
+  font-size: 14px;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Message container styles */
+.message-container {
+  margin: 16px 24px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+.message-container.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 1px solid #28a745;
+  color: #155724;
+}
+
+.message-container.error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border: 1px solid #dc3545;
+  color: #721c24;
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  position: relative;
+  padding-right: 30px;
+}
+
+.message-close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0 4px;
+}
+
+.message-close:hover {
+  opacity: 1;
+}
+
+.message-icon {
+  font-size: 18px;
+}
+
+/* Days display warning */
+.days-display-warning {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  border-color: var(--danger) !important;
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

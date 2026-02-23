@@ -18,6 +18,10 @@ export default function HrLeaveManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Leave Master Errors
+  const [leaveNameError, setLeaveNameError] = useState("");
+  const [noOfDaysError, setNoOfDaysError] = useState("");
+
   // LOP States
   const [lopForm, setLopForm] = useState({
     userName: "",
@@ -25,6 +29,11 @@ export default function HrLeaveManagement() {
     toDate: "",
     reason: ""
   });
+
+  // LOP Errors
+  const [userNameError, setUserNameError] = useState("");
+  const [dateError, setDateError] = useState("");
+  const [reasonError, setReasonError] = useState("");
 
   // UI States
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
@@ -57,28 +66,109 @@ export default function HrLeaveManagement() {
 
   /* ================= INPUT HANDLERS ================= */
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
+  let { name, value } = e.target;
+
+  // Leave Name → only letters & space
+  if (name === "leaveName") {
+    value = value.replace(/[^A-Za-z\s]/g, "");
+    if (value.trim() === "") {
+      setLeaveNameError("");
+    } else if (!/^[A-Za-z\s]+$/.test(value)) {
+      setLeaveNameError("Leave name must contain only letters and spaces");
+    } else if (value.length < 2) {
+      setLeaveNameError("Leave name must be at least 2 characters");
+    } else {
+      setLeaveNameError("");
+    }
+  }
+
+  // Number of Days → numeric only + max 366
+  if (name === "noOfDays") {
+    value = value.replace(/\D/g, "");
+
+    if (value.length > 3) return;
+    
+    if (value === "") {
+      setNoOfDaysError("");
+    } else {
+      const numValue = Number(value);
+      if (numValue < 1) {
+        setNoOfDaysError("Number of days must be at least 1");
+      } else if (numValue > 366) {
+        setNoOfDaysError("Number of days cannot exceed 366");
+        value = "366";
+      } else {
+        setNoOfDaysError("");
+      }
+    }
+  }
+
+  setForm({ ...form, [name]: value });
+};
 
   const handleLopChange = (e) => {
-    const { name, value } = e.target;
-    setLopForm({ ...lopForm, [name]: value });
-  };
+  let { name, value } = e.target;
+
+  // Username pattern → 4 letters + 3 digits (vppl001)
+  if (name === "userName") {
+    value = value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    if (value.length <= 4) {
+      value = value.replace(/[^a-z]/g, "");
+    }
+
+    if (value.length > 4) {
+      const letters = value.substring(0, 4).replace(/[^a-z]/g, "");
+      const numbers = value.substring(4).replace(/\D/g, "");
+      value = letters + numbers;
+    }
+
+    if (value.length > 7) return;
+
+    // Set error based on validation
+    if (value === "") {
+      setUserNameError("");
+    } else if (value.length < 7) {
+      setUserNameError("Format must be like vppl001 (4 letters + 3 digits)");
+    } else if (!/^[a-z]{4}\d{3}$/.test(value)) {
+      setUserNameError("Format must be like vppl001 (4 letters + 3 digits)");
+    } else {
+      setUserNameError("");
+    }
+  }
+
+  setLopForm({ ...lopForm, [name]: value });
+};
 
   /* ================= LEAVE MASTER OPERATIONS ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!form.leaveName.trim() || !form.noOfDays) {
-      showNotification("Please fill in all required fields", "error");
-      return;
+    let hasError = false;
+
+    if (!form.leaveName.trim()) {
+      setLeaveNameError("Leave name is required");
+      hasError = true;
+    } else if (form.leaveName.trim().length < 2) {
+      setLeaveNameError("Leave name must be at least 2 characters");
+      hasError = true;
     }
 
-    if (Number(form.noOfDays) <= 0) {
-      showNotification("Number of days must be greater than 0", "error");
-      return;
+    if (!form.noOfDays) {
+      setNoOfDaysError("Number of days is required");
+      hasError = true;
+    } else {
+      const numDays = Number(form.noOfDays);
+      if (numDays < 1) {
+        setNoOfDaysError("Number of days must be at least 1");
+        hasError = true;
+      } else if (numDays > 366) {
+        setNoOfDaysError("Number of days cannot exceed 366");
+        hasError = true;
+      }
     }
+
+    if (hasError) return;
 
     setIsLoading(true);
     try {
@@ -98,6 +188,8 @@ export default function HrLeaveManagement() {
 
       setForm({ leaveName: "", noOfDays: "" });
       setEditId(null);
+      setLeaveNameError("");
+      setNoOfDaysError("");
       fetchLeaves();
     } catch (error) {
       showNotification(
@@ -142,22 +234,49 @@ export default function HrLeaveManagement() {
   const handleCancelEdit = () => {
     setForm({ leaveName: "", noOfDays: "" });
     setEditId(null);
+    setLeaveNameError("");
+    setNoOfDaysError("");
   };
 
   /* ================= LOP OPERATIONS ================= */
   const submitLOP = async (e) => {
     e.preventDefault();
 
-    if (!lopForm.userName.trim() || !lopForm.fromDate || !lopForm.toDate || !lopForm.reason.trim()) {
-      showNotification("Please fill in all LOP fields", "error");
-      return;
+    // Validate required fields
+    let hasError = false;
+
+    if (!lopForm.userName.trim()) {
+      setUserNameError("Employee username is required");
+      hasError = true;
     }
 
-    // Validate dates
-    const from = new Date(lopForm.fromDate);
-    const to = new Date(lopForm.toDate);
-    if (from > to) {
-      showNotification("From date cannot be after To date", "error");
+    if (!lopForm.reason.trim()) {
+      setReasonError("Reason is required");
+      hasError = true;
+    } else if (lopForm.reason.trim().length < 10) {
+      setReasonError("Reason must be at least 10 characters");
+      hasError = true;
+    }
+
+    if (!lopForm.fromDate || !lopForm.toDate) {
+      setDateError("Both From Date and To Date are required");
+      hasError = true;
+    } else {
+      const from = new Date(lopForm.fromDate);
+      const to = new Date(lopForm.toDate);
+      if (from > to) {
+        setDateError("From date cannot be after To date");
+        hasError = true;
+      } else {
+        setDateError("");
+      }
+    }
+    
+    if (hasError) return;
+
+    const usernameRegex = /^[a-z]{4}\d{3}$/;
+    if (!usernameRegex.test(lopForm.userName)) {
+      setUserNameError("Format must be like vppl001 (4 letters + 3 digits)");
       return;
     }
 
@@ -173,6 +292,9 @@ export default function HrLeaveManagement() {
       await api.post("/leave-record/update-lop", payload);
       showNotification("LOP recorded successfully and notification sent!", "success");
       setLopForm({ userName: "", fromDate: "", toDate: "", reason: "" });
+      setUserNameError("");
+      setDateError("");
+      setReasonError("");
     } catch (err) {
       showNotification(
         err.response?.data?.message || "Failed to record LOP",
@@ -266,7 +388,7 @@ export default function HrLeaveManagement() {
             </div>
             <form onSubmit={handleSubmit} className="leave-form">
               <div className="form-group">
-                <label htmlFor="leaveName">Leave Type Name *</label>
+                <label htmlFor="leaveName">Leave Type Name <span className="required">*</span></label>
                 <input
                   id="leaveName"
                   type="text"
@@ -277,10 +399,15 @@ export default function HrLeaveManagement() {
                   maxLength={100}
                   required
                 />
+                {leaveNameError && (
+                  <div className="field-error" style={{ color: 'rgb(214, 19, 16)', fontSize: '12px', marginTop: '4px' }}>
+                    {leaveNameError}
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
-                <label htmlFor="noOfDays">Number of Days *</label>
+                <label htmlFor="noOfDays">Number of Days <span className="required">*</span></label>
                 <input
                   id="noOfDays"
                   type="number"
@@ -292,6 +419,11 @@ export default function HrLeaveManagement() {
                   max="365"
                   required
                 />
+                {noOfDaysError && (
+                  <div className="field-error" style={{ color: 'rgb(214, 19, 16)', fontSize: '12px', marginTop: '4px' }}>
+                    {noOfDaysError}
+                  </div>
+                )}
               </div>
 
               <div className="form-actions">
@@ -318,7 +450,7 @@ export default function HrLeaveManagement() {
                 <input
                   type="text"
                   className="search-box"
-                  placeholder="🔍 Search leave types..."
+                  placeholder=" Search leave types..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -354,7 +486,7 @@ export default function HrLeaveManagement() {
                   <tbody>
                     {filteredLeaves.map((leave) => (
                       <tr key={leave.leaveId}>
-                        <td>#{leave.leaveId}</td>
+                        <td>{leave.leaveId}</td>
                         <td>
                           <strong>{leave.leaveName}</strong>
                         </td>
@@ -391,7 +523,7 @@ export default function HrLeaveManagement() {
           </div>
           <form onSubmit={submitLOP} className="lop-form">
             <div className="form-group">
-              <label htmlFor="userName">Employee Username *</label>
+              <label htmlFor="userName">Employee Username <span className="required">*</span></label>
               <input
                 id="userName"
                 type="text"
@@ -401,11 +533,15 @@ export default function HrLeaveManagement() {
                 onChange={handleLopChange}
                 required
               />
-              <small className="form-help">Enter the employee's system username</small>
+              {userNameError && (
+                <div className="field-error" style={{ color: 'rgb(214, 19, 16)', fontSize: '12px', marginTop: '4px' }}>
+                  {userNameError}
+                </div>
+              )}
             </div>
 
             <div className="form-group">
-              <label htmlFor="fromDate">From Date *</label>
+              <label htmlFor="fromDate">From Date <span className="required">*</span></label>
               <input
                 id="fromDate"
                 type="date"
@@ -418,7 +554,7 @@ export default function HrLeaveManagement() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="toDate">To Date *</label>
+              <label htmlFor="toDate">To Date <span className="required">*</span></label>
               <input
                 id="toDate"
                 type="date"
@@ -428,10 +564,15 @@ export default function HrLeaveManagement() {
                 min={lopForm.fromDate || undefined}
                 required
               />
+              {dateError && (
+                <div className="field-error" style={{ color: 'rgb(214, 19, 16)', fontSize: '12px', marginTop: '4px' }}>
+                  {dateError}
+                </div>
+              )}
             </div>
 
             <div className="form-group full-width">
-              <label htmlFor="reason">Reason for LOP *</label>
+              <label htmlFor="reason">Reason for LOP <span className="required">*</span></label>
               <textarea
                 id="reason"
                 name="reason"
@@ -442,6 +583,11 @@ export default function HrLeaveManagement() {
                 maxLength={500}
                 required
               />
+              {reasonError && (
+                <div className="field-error" style={{ color: 'rgb(214, 19, 16)', fontSize: '12px', marginTop: '4px' }}>
+                  {reasonError}
+                </div>
+              )}
               <small className="form-help">
                 {lopForm.reason.length}/500 characters
               </small>

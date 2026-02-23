@@ -19,15 +19,19 @@ export default class ForgotPassword extends Component {
     /* ✅ EMPLOYEE ID VALIDATION ONLY */
     if (name === 'username') {
       const v = value.toUpperCase().slice(0, 8); // max 8 chars
+      const errorMsg = v.length === 0
+        ? ''
+        : /^VPPL\d{3,4}$/.test(v)
+        ? ''
+        : 'Employee ID must be VPPL001 or VPPL0001';
+
+      if (errorMsg) {
+        window.alert(errorMsg);
+      }
 
       this.setState({
         username: v,
-        usernameError:
-          v.length === 0
-            ? ''
-            : /^VPPL\d{3,4}$/.test(v)
-            ? ''
-            : 'Employee ID must be VPPL001 or VPPL0001'
+        usernameError: errorMsg
       });
       return;
     }
@@ -40,7 +44,10 @@ export default class ForgotPassword extends Component {
     e.preventDefault();
 
     // ✅ Block submit if Employee ID invalid
-    if (this.state.usernameError) return;
+    if (this.state.usernameError) {
+      window.alert(this.state.usernameError);
+      return;
+    }
 
     fetch('/forget-password', {
       method: 'PUT',
@@ -56,15 +63,18 @@ export default class ForgotPassword extends Component {
         this.setState({
           message: 'Please check your registered email. We sent a new password.'
         });
+        window.alert('Please check your registered email. We sent a new password.');
 
         setTimeout(() => {
           this.setState({ redirect: true });
         }, 3000);
       })
       .catch(() => {
+        const errorMsg = 'Employee ID and Registered Email do not match';
         this.setState({
-          message: 'Employee ID and Registered Email do not match'
+          message: errorMsg
         });
+        window.alert(errorMsg);
       });
   };
 
@@ -96,7 +106,16 @@ export default class ForgotPassword extends Component {
               />
 
               {this.state.usernameError && (
-                <small className="error-message">
+                <small
+                  style={{
+                    color: '#8B00FF',
+                    fontWeight: 'bold',
+                    display: 'block',
+                    marginTop: '8px',
+                    marginBottom: '10px',
+                    fontSize: '13px'
+                  }}
+                >
                   {this.state.usernameError}
                 </small>
               )}
@@ -117,11 +136,18 @@ export default class ForgotPassword extends Component {
 
               {this.state.message && (
                 <div
-                  className={`error-message ${
-                    this.state.message.includes('check')
-                      ? 'success'
-                      : ''
-                  }`}
+                  style={{
+                    backgroundColor: this.state.message.includes('check') ? '#E6F3FF' : '#FFE6F0',
+                    color: this.state.message.includes('check') ? '#0066CC' : '#8B00FF',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    marginTop: '15px',
+                    border: this.state.message.includes('check')
+                      ? '1px solid #0066CC'
+                      : '1px solid #8B00FF',
+                    fontWeight: 'bold',
+                    fontSize: '14px'
+                  }}
                 >
                   {this.state.message}
                 </div>

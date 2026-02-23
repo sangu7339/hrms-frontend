@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { 
   FiHome, FiUser, FiDollarSign, FiCalendar, 
   FiLogOut, FiSettings, FiMenu, FiX, FiEye, FiEyeOff,
-  FiUsers, FiClock
+  FiUsers, FiClock, FiLock
 } from "react-icons/fi";
 
 import EmpProfile from "./EmpProfile";
@@ -12,13 +12,12 @@ import EmpSalary from "./EmpSalary";
 import EmployeeHolidayCalendar from "./EmployeeHolidayCalendar";
 import ReportingManager from "./ReportingManager";
 import EmpLeaveManagement from "./EmpLeaveManagement";
-
+import { FaRupeeSign } from "react-icons/fa";
 import "./EmpDashboard.css";
 
 export default class EmpDashboard extends Component {
   state = {
     activePage: "dashboard",
-    showMenu: false,
     showChangePassword: false,
     sidebarOpen: true,
 
@@ -74,21 +73,23 @@ export default class EmpDashboard extends Component {
   submitPassword = () => {
     const { password, confirmPassword } = this.state;
 
-    if (!password || !confirmPassword) {
-      this.setState({ message: "Please fill all fields" });
+    if (!password) {
+      alert("New password is required");
       return;
     }
 
     if (!this.passwordRegex.test(password)) {
-      this.setState({
-        message:
-          "Password must be 8+ chars with uppercase, lowercase, number & special character",
-      });
+      alert("Password must be 8+ chars with uppercase, lowercase, number & special character");
+      return;
+    }
+
+    if (!confirmPassword) {
+      alert("Confirm password is required");
       return;
     }
 
     if (password !== confirmPassword) {
-      this.setState({ message: "Passwords do not match" });
+      alert("Passwords do not match");
       return;
     }
 
@@ -108,6 +109,8 @@ export default class EmpDashboard extends Component {
           showChangePassword: false,
           password: "",
           confirmPassword: "",
+          newPasswordError: "",
+          confirmPasswordError: "",
         })
       )
       .catch(() =>
@@ -135,6 +138,9 @@ export default class EmpDashboard extends Component {
   renderDashboardHome() {
     const { leaveBalance } = this.state;
     
+    // Filter out LOP (Leave Without Pay) from display
+    const visibleLeaves = leaveBalance.filter(leave => leave.leaveName !== 'LOP');
+    
     return (
       <div className="dashboard-home">
         <div className="welcome-card">
@@ -144,7 +150,7 @@ export default class EmpDashboard extends Component {
 
         {/* Leave Balance Cards */}
         <div className="stats-grid">
-          {leaveBalance.map((leave) => (
+          {visibleLeaves.map((leave) => (
             <div key={leave.leaveId} className="stat-card">
               <div className="stat-header">
                 <h3>{leave.leaveName}</h3>
@@ -191,7 +197,7 @@ export default class EmpDashboard extends Component {
               className="action-btn"
               onClick={() => this.handleNavigation("salary")}
             >
-              <FiDollarSign size={24} />
+              <FaRupeeSign size={24} />
               <span>View Payslip</span>
             </button>
             <button 
@@ -220,7 +226,7 @@ export default class EmpDashboard extends Component {
     const menuItems = [
       { key: "dashboard", label: "Dashboard", icon: <FiHome /> },
       { key: "profile", label: "My Profile", icon: <FiUser /> },
-      { key: "salary", label: "Salary", icon: <FiDollarSign /> },
+      { key: "salary", label: "Salary", icon: <FaRupeeSign /> },
       { key: "empleavemanagement", label: "Leave Management", icon: <FiClock /> },
       { key: "EmployeeHolidayCalendar", label: "Holiday Calendar", icon: <FiCalendar /> },
       { key: "reportingmanager", label: "Reporting Manager", icon: <FiUsers /> },
@@ -259,7 +265,7 @@ export default class EmpDashboard extends Component {
                     })
                   }
                 >
-                  <FiSettings />
+                  <FiLock />
                   <span>Change Password</span>
                 </div>
               </div>
@@ -321,6 +327,8 @@ export default class EmpDashboard extends Component {
                       password: "",
                       confirmPassword: "",
                       message: "",
+                      newPasswordError: "",
+                      confirmPasswordError: "",
                     })
                   }
                 >
@@ -335,7 +343,7 @@ export default class EmpDashboard extends Component {
                   <div className="input-with-icon">
                     <input
                       type={this.state.showNewPassword ? "text" : "password"}
-                      placeholder="Enter new password"
+                      placeholder="Password must be 8+ chars with uppercase, lowercase, number & special character"
                       value={this.state.password}
                       maxLength={20}
                       onChange={(e) =>
@@ -352,12 +360,13 @@ export default class EmpDashboard extends Component {
                     >
                       {this.state.showNewPassword ? <FiEyeOff /> : <FiEye />}
                     </button>
+                   
                   </div>
+                  
                   {/* <div className="password-hint">
                     Must contain uppercase, lowercase, number & special character
                   </div> */}
                 </div>
-
                 <div className="password-field">
                   <label>Confirm Password</label>
                   <div className="input-with-icon">
@@ -383,9 +392,6 @@ export default class EmpDashboard extends Component {
                     </button>
                   </div>
                 </div>
-                 <div className="password-hint">
-                    Must contain uppercase, lowercase, number & special character
-                  </div>
               </div>
 
               <div className="modal-actions">
@@ -403,6 +409,8 @@ export default class EmpDashboard extends Component {
                       password: "",
                       confirmPassword: "",
                       message: "",
+                      newPasswordError: "",
+                      confirmPasswordError: "",
                     })
                   }
                 >

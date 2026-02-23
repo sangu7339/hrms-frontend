@@ -3,7 +3,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import companyLogo from "./assets/download.png";
-import { FiDownload, FiCalendar, FiFileText, FiDollarSign } from "react-icons/fi";
+import { FiDownload, FiCalendar, FiFileText} from "react-icons/fi";
 const EmpSalary = () => {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [message, setMessage] = useState("");
@@ -175,7 +175,7 @@ const EmpSalary = () => {
 
           {/* Instructions */}
           <div style={styles.instructionBox}>
-            <FiDollarSign size={20} style={styles.instructionIcon} />
+            
             <div>
               <h3 style={styles.instructionTitle}>How to Download</h3>
               <p style={styles.instructionText}>

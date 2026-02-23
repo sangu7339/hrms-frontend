@@ -947,3 +947,46 @@ textarea.modern-input {
 .uploading {
   animation: pulse 1.5s ease-in-out infinite;
 }
+/* ERROR LABEL */
+.label-error {
+  color: #e53935;
+  font-weight: 600;
+}
+
+/* RED BORDER */
+.input-error {
+  border: 1.8px solid #e53935 !important;
+  background-color: #fff5f5;
+}
+
+/* RED GLOW */
+.has-error .modern-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(229,57,53,0.2);
+}
+
+/* ERROR TEXT */
+.error {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* STAR COLOR */
+.required {
+  color: #e53935;
+}
+/* Error message text */
+.error-text {
+  color: #e53935;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+.error{
+  color:#e53935;
+  font-size:12px;
+  margin-top:4px;
+  display:block;
+}

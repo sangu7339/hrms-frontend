@@ -1,4 +1,3 @@
-
 import api from "./api";
 import React, { Component } from 'react';
 import './EmpLeaveManagement.css';
@@ -18,11 +17,24 @@ export default class EmpLeaveManagement extends Component {
     selectedLeave: null,
     showRejectModal: false,
     message: { type: '', text: '' },
-    calculatedDays: 0
+    calculatedDays: 0,
+
+    // ✅ Logged-in user ID from localStorage (set during login)
+    // currentUserId: localStorage.getItem("userId")
+    currentUserId: Number(localStorage.getItem("userId"))
   };
 
   componentDidMount() {
     this.loadAllData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // If team leaves become empty while on the 'team' tab, switch to 'apply' tab
+    if (prevState.teamLeaves.length !== this.state.teamLeaves.length &&
+        this.state.teamLeaves.length === 0 &&
+        this.state.activeTab === 'team') {
+      this.setState({ activeTab: 'apply' });
+    }
   }
 
   /* ================= LOAD APIs ================= */
@@ -40,21 +52,20 @@ export default class EmpLeaveManagement extends Component {
       this.setState({ loading: false });
     }
   };
- loadLeaveTypes = async () => {
-  try {
-    const res = await api.get('/leave-master/all');
-    console.log("Leave Types Response:", res.data);
-
-    const data = Array.isArray(res.data) ? res.data : [];
-
-    this.setState({
-      leaveTypes: data.filter(l => l.leaveName !== 'LOP')
-    });
-
-  } catch (error) {
-    console.error('Error loading leave types:', error);
-  }
-};
+  
+  loadLeaveTypes = async () => {
+    try {
+      const res = await api.get('/leave-master/all');
+      console.log("Leave Types Response:", res.data);
+      const data = Array.isArray(res.data) ? res.data : [];
+      this.setState({
+        leaveTypes: data.filter(l => l.leaveName !== 'LOP')
+      });
+    } catch (error) {
+      console.error('Error loading leave types:', error);
+    }
+  };
+  
   loadMyLeaves = async () => {
     try {
       const res = await api.get('/leave-record/myLeaves');
@@ -64,9 +75,12 @@ export default class EmpLeaveManagement extends Component {
     }
   };
 
+  // ✅ FIXED: Now calls the correct endpoint for team leaves
   loadTeamLeaves = async () => {
     try {
-      const res = await api.get('/leave-record/myLeaves');
+      // 🔁 REPLACE with your actual backend endpoint that returns ONLY other employees' leaves
+      // Example: '/leave-record/teamLeaves' or '/leave-record/allForApproval'
+      const res = await api.get('/leave-record/teamLeaves'); 
       this.setState({ teamLeaves: res.data });
     } catch (error) {
       console.error('Error loading team leaves:', error);
@@ -79,31 +93,23 @@ export default class EmpLeaveManagement extends Component {
     
     let start, end;
     
-    // Handle array format from API: [year, month, day]
     if (Array.isArray(startDate) && Array.isArray(endDate)) {
-      // Note: Month is 0-indexed in JavaScript Date, so subtract 1
       start = new Date(startDate[0], startDate[1] - 1, startDate[2]);
       end = new Date(endDate[0], endDate[1] - 1, endDate[2]);
-    } 
-    // Handle string format from form: "YYYY-MM-DD"
-    else if (typeof startDate === 'string' && typeof endDate === 'string') {
+    } else if (typeof startDate === 'string' && typeof endDate === 'string') {
       start = new Date(startDate);
       end = new Date(endDate);
-    } 
-    // Handle mixed or invalid formats
-    else {
+    } else {
       return 0;
     }
     
-    // Validate dates
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return 0;
     }
     
-    // Calculate difference in days (inclusive of both start and end dates)
     const diffTime = Math.abs(end - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays + 1; // +1 to include both start and end dates
+    return diffDays + 1; // inclusive
   };
 
   /* ================= DATE HELPER METHODS ================= */
@@ -111,14 +117,9 @@ export default class EmpLeaveManagement extends Component {
     if (!dateArray || !Array.isArray(dateArray) || dateArray.length < 3) return '-';
     
     const [year, month, day] = dateArray;
-    
-    // Validate the date values
     if (!year || !month || !day) return '-';
     
-    // Create date object (month is 0-indexed)
     const date = new Date(year, month - 1, day);
-    
-    // Check if date is valid
     if (isNaN(date.getTime())) return '-';
     
     return date.toLocaleDateString('en-IN', {
@@ -130,11 +131,10 @@ export default class EmpLeaveManagement extends Component {
 
   convertToDateArray = (dateString) => {
     if (!dateString) return null;
-    
     const date = new Date(dateString);
     return [
       date.getFullYear(),
-      date.getMonth() + 1, // JavaScript months are 0-indexed
+      date.getMonth() + 1,
       date.getDate()
     ];
   };
@@ -143,7 +143,6 @@ export default class EmpLeaveManagement extends Component {
   applyLeave = async () => {
     const { leaveId, startDate, endDate, reason, leaveTypes } = this.state;
 
-    // Validation
     if (!leaveId || !startDate || !endDate || !reason.trim()) {
       this.showMessage('error', 'Please fill all required fields');
       return;
@@ -152,15 +151,13 @@ export default class EmpLeaveManagement extends Component {
     const start = new Date(startDate);
     const end = new Date(endDate);
     
-    // Check if dates are valid
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       this.showMessage('error', 'Invalid date format');
       return;
     }
     
-    // Check if start date is not in the past
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to beginning of day
+    today.setHours(0, 0, 0, 0);
     
     if (start < today) {
       this.showMessage('error', 'Start date cannot be in the past');
@@ -172,7 +169,6 @@ export default class EmpLeaveManagement extends Component {
       return;
     }
     
-    // Calculate days and check against leave type limit
     const days = this.calculateDays(startDate, endDate);
     const selectedLeaveType = leaveTypes.find(lt => lt.leaveId === leaveId);
     
@@ -192,12 +188,9 @@ export default class EmpLeaveManagement extends Component {
       };
 
       console.log('Sending leave application:', requestData);
-
       await api.post('/leave-record/applyLeave', requestData);
-
       this.showMessage('success', 'Leave application submitted successfully!');
       
-      // Reset form
       this.setState({
         leaveId: '',
         startDate: '',
@@ -206,7 +199,6 @@ export default class EmpLeaveManagement extends Component {
         calculatedDays: 0
       });
 
-      // Refresh data
       await this.loadMyLeaves();
     } catch (error) {
       console.error('Error applying leave:', error);
@@ -217,7 +209,15 @@ export default class EmpLeaveManagement extends Component {
   };
 
   /* ================= APPROVE LEAVE ================= */
-  approveLeave = async (recId, status) => {
+  approveLeave = async (recId, status, employeeId) => {
+    const { currentUserId } = this.state;
+
+    // Block self-approval
+    if (employeeId == currentUserId) {
+      this.showMessage('error', 'You cannot approve your own leave');
+      return;
+    }
+
     if (status !== 1) {
       this.showMessage('error', 'Only pending leaves can be approved');
       return;
@@ -228,8 +228,8 @@ export default class EmpLeaveManagement extends Component {
     }
 
     try {
+      // ✅ Correct PUT endpoint
       await api.put(`/leave-record/approve/${recId}`);
-      
       this.showMessage('success', 'Leave approved successfully!');
       await this.loadTeamLeaves();
       await this.loadMyLeaves();
@@ -255,8 +255,8 @@ export default class EmpLeaveManagement extends Component {
 
     try {
       await api.put(`/leave-record/reject/${selectedLeave.recId}`, {
-  reason: rejectReason.trim()
-});
+        reason: rejectReason.trim()
+      });
       
       this.showMessage('success', 'Leave rejected successfully!');
       this.setState({
@@ -286,7 +286,6 @@ export default class EmpLeaveManagement extends Component {
   handleChange = (e) => {
     const { name, value } = e.target;
     this.setState({ [name]: value }, () => {
-      // Recalculate days when startDate or endDate changes
       if (name === 'startDate' || name === 'endDate') {
         const { startDate, endDate } = this.state;
         if (startDate && endDate) {
@@ -336,31 +335,37 @@ export default class EmpLeaveManagement extends Component {
     </div>
   );
 
-  renderTabs = () => (
-    <div className="tab-navigation">
-      <button
-        className={`tab-btn ${this.state.activeTab === 'apply' ? 'active' : ''}`}
-        onClick={() => this.setState({ activeTab: 'apply' })}
-      >
-        <span className="tab-icon">+</span>
-        Apply Leave
-      </button>
-      <button
-        className={`tab-btn ${this.state.activeTab === 'my' ? 'active' : ''}`}
-        onClick={() => this.setState({ activeTab: 'my' })}
-      >
-        <span className="tab-icon">📋</span>
-        My Leaves
-      </button>
-      <button
-        className={`tab-btn ${this.state.activeTab === 'team' ? 'active' : ''}`}
-        onClick={() => this.setState({ activeTab: 'team' })}
-      >
-        <span className="tab-icon">👥</span>
-        Team Leaves
-      </button>
-    </div>
-  );
+  renderTabs = () => {
+    const { activeTab, teamLeaves } = this.state;
+    return (
+      <div className="tab-navigation">
+        <button
+          className={`tab-btn ${activeTab === 'apply' ? 'active' : ''}`}
+          onClick={() => this.setState({ activeTab: 'apply' })}
+        >
+          <span className="tab-icon">+</span>
+          Apply Leave
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'my' ? 'active' : ''}`}
+          onClick={() => this.setState({ activeTab: 'my' })}
+        >
+          <span className="tab-icon">📋</span>
+          My Leaves
+        </button>
+        {/* Show Team Leaves tab only if there are team leaves */}
+        {teamLeaves.length > 0 && (
+          <button
+            className={`tab-btn ${activeTab === 'team' ? 'active' : ''}`}
+            onClick={() => this.setState({ activeTab: 'team' })}
+          >
+            <span className="tab-icon">👥</span>
+            Team Leaves
+          </button>
+        )}
+      </div>
+    );
+  };
 
   renderMessage = () => {
     const { message } = this.state;
@@ -544,7 +549,6 @@ export default class EmpLeaveManagement extends Component {
               <thead>
                 <tr>
                   <th>Leave ID</th>
-                  <th>Type</th>
                   <th>From Date</th>
                   <th>To Date</th>
                   <th>Duration</th>
@@ -555,12 +559,10 @@ export default class EmpLeaveManagement extends Component {
                 {myLeaves.map(leave => {
                   const status = this.statusText(leave.status);
                   const days = this.calculateDays(leave.startDate, leave.endDate);
-                  const leaveType = this.state.leaveTypes.find(lt => lt.leaveId === leave.leaveId);
                   
                   return (
                     <tr key={leave.recId}>
                       <td className="text-center">#{leave.recId}</td>
-                      <td>{leaveType?.leaveName || 'Unknown'}</td>
                       <td>{this.formatDate(leave.startDate)}</td>
                       <td>{this.formatDate(leave.endDate)}</td>
                       <td className="text-center">{days} days</td>
@@ -581,7 +583,7 @@ export default class EmpLeaveManagement extends Component {
   };
 
   renderTeamLeaves = () => {
-    const { teamLeaves, loading, rejectReason, showRejectModal, selectedLeave } = this.state;
+    const { teamLeaves, loading, rejectReason, showRejectModal, selectedLeave, currentUserId } = this.state;
 
     return (
       <div className="section-container">
@@ -646,30 +648,43 @@ export default class EmpLeaveManagement extends Component {
                           {status.text}
                         </span>
                       </td>
-                      <td>
-                        {leave.status === 1 ? (
-                          <div className="action-buttons">
-                            <button
-                              className="btn-action approve"
-                              onClick={() => this.approveLeave(leave.recId, leave.status)}
-                              disabled={loading}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="btn-action reject"
-                              onClick={() => this.openRejectModal(leave)}
-                              disabled={loading}
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="action-text">
-                            {leave.status === 2 ? '✔ Approved' : '❌ Rejected'}
-                          </span>
-                        )}
-                      </td>
+                    <td>
+  {leave.status === 1 ? (
+    <div className="action-buttons">
+
+      {/* ✅ APPROVE BUTTON — ADD HERE */}
+      {leave.employeeId != currentUserId && (
+        <button
+          className="btn-action approve"
+          onClick={() =>
+            this.approveLeave(
+              leave.recId,
+              leave.status,
+              leave.employeeId
+            )
+          }
+          disabled={loading}
+        >
+          ✔ Approve
+        </button>
+      )}
+
+      {/* ❌ REJECT BUTTON */}
+      <button
+        className="btn-action reject"
+        onClick={() => this.openRejectModal(leave)}
+        disabled={loading}
+      >
+        ❌ Reject
+      </button>
+
+    </div>
+  ) : (
+    <span className="action-text">
+      {leave.status === 2 ? '✔ Approved' : '❌ Rejected'}
+    </span>
+  )}
+</td>
                     </tr>
                   );
                 })}
